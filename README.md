@@ -36,10 +36,8 @@ Este script em PowerShell remove aplicativos indesejados, desativa serviços des
 Abra o **PowerShell como Administrador** e execute:
 
 ```powershell
-iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/seuusuario/Windows11-Debloat/main/debloat-windows11.ps1'))
+iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/rivaed/Windows11-Debloat/main/debloat-windows11.ps1'))
 ```
-
-Substitua `seuusuario` pelo nome do seu usuário no GitHub.
 
 ## Aviso
 
@@ -52,7 +50,3 @@ Contribuições são bem-vindas! Se quiser sugerir melhorias ou adicionar funcio
 ## Licença
 
 Este projeto está licenciado sob a **MIT License** – sinta-se livre para modificar e compartilhar.
-
----
-
-Esse README garante que qualquer usuário entenda o objetivo do repositório, saiba como usar o script e possa contribuir. Quer alguma personalização adicional?
