@@ -1,4 +1,3 @@
-
 # 🧹 Debloat Windows 11 – Remoção de Bloatware e Otimização
 
 Script PowerShell para remover aplicativos desnecessários (bloatware), desativar serviços de telemetria, limpar arquivos temporários e aplicar ajustes de desempenho no Windows 11.
