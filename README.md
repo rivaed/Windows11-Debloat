@@ -1,52 +1,91 @@
 
-# Windows 11 Debloat Script
+# 🧹 Debloat Windows 11 – Remoção de Bloatware e Otimização
 
-## Descrição
+Script PowerShell para remover aplicativos desnecessários (bloatware), desativar serviços de telemetria, limpar arquivos temporários e aplicar ajustes de desempenho no Windows 11.
 
-Este script em PowerShell remove aplicativos indesejados, desativa serviços desnecessários e ajusta configurações para melhorar a performance do Windows 11. Ele é ideal para usuários que desejam um sistema mais limpo, leve e rápido.
+---
 
-## Funcionalidades
+## ⚠️ AVISO LEGAL
 
-- Remoção de bloatware (aplicativos pré-instalados).
-- Desativação de telemetria e coleta de dados.
-- Ajuste de configurações para melhorar o desempenho.
-- Otimização de serviços e processos em segundo plano.
+Este script é fornecido com fins técnicos e educacionais.  
+**Execute por sua própria conta e risco.**  
+Recomendado apenas para técnicos, analistas e usuários com conhecimento prévio.
 
-## Como Usar
+---
 
-### Método 1: Execução Direta via PowerShell
+## 🎯 O que este script faz
 
-1. Baixe o script `debloat-windows11.ps1`.
-2. Abra o **PowerShell como Administrador**.
-3. Navegue até a pasta onde o script está salvo:
-   ```powershell
-   cd C:\caminho\para\o\script
+- Remove aplicativos pré-instalados indesejados
+- Desativa serviços de telemetria (DiagTrack, DMWAPPushService)
+- Ajusta efeitos visuais para melhorar performance
+- Limpa arquivos temporários do usuário e do sistema
+
+---
+
+## 🛠️ Como usar
+
+1. **Baixe o script para sua máquina**, exemplo:
+
    ```
-4. Permita a execução de scripts:
-   ```powershell
-   Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+   C:\debloat-windows11.ps1
    ```
-5. Execute o script:
+
+2. **Abra o PowerShell como Administrador**
+
+3. **Desbloqueie o script (obrigatório):**
+
+   ```powershell
+   Unblock-File -Path C:\debloat-windows11.ps1
+   ```
+
+4. **(Se necessário) Altere temporariamente a política de execução:**
+
+   ```powershell
+   Set-ExecutionPolicy RemoteSigned -Scope Process
+   ```
+
+5. **Execute o script:**
+
    ```powershell
    .\debloat-windows11.ps1
    ```
 
-### Método 2: Execução via Comando Único (Recomendado)
+---
 
-Abra o **PowerShell como Administrador** e execute:
+## ✅ Após a execução: Restaurar restrições de segurança
+
+Por padrão, o PowerShell bloqueia a execução de scripts por segurança. Para manter seu sistema protegido, **reaplique a política original (Restricted)**:
 
 ```powershell
-iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/rivaed/Windows11-Debloat/main/debloat-windows11.ps1'))
+Set-ExecutionPolicy Restricted -Scope Process
 ```
 
-## Aviso
+> Se você usou o parâmetro `-Scope Process`, isso é feito automaticamente ao fechar o terminal.  
+> Para alterar globalmente (não recomendado), use `-Scope LocalMachine`.
 
-Este script altera configurações do sistema e remove aplicativos. **Use por sua conta e risco.** Recomenda-se criar um ponto de restauração antes da execução.
+---
 
-## Contribuições
+## 📝 Requisitos
 
-Contribuições são bem-vindas! Se quiser sugerir melhorias ou adicionar funcionalidades, basta abrir um Pull Request.
+- Windows 11
+- Acesso de Administrador
+- PowerShell
 
-## Licença
+---
 
-Este projeto está licenciado sob a **MIT License** – sinta-se livre para modificar e compartilhar.
+## 🛡️ Ética e Responsabilidade
+
+Não utilize este script em equipamentos de terceiros sem autorização.  
+Testado em builds recentes do Windows 11. Recomendado testar em ambiente controlado antes de aplicar em produção.
+
+---
+
+## 📄 Licença
+
+Distribuído sob a licença [MIT](LICENSE).  
+Conteúdo livre para uso, adaptação e redistribuição com os devidos créditos.
+
+---
+
+**Feito por [rivaed](https://github.com/rivaed) – scripts que aliviam o sistema, não a responsabilidade.**
+
