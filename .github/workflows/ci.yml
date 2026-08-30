@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  validar:
+    name: Lint, testes e dry-run (Windows PowerShell 5.1)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PSScriptAnalyzer
+        shell: powershell
+        run: |
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+          $resultados = Invoke-ScriptAnalyzer -Path .\debloat-windows11.ps1 -Severity Warning, Error
+          $resultados | Format-Table RuleName, Severity, Line, Message -AutoSize | Out-String -Width 200 | Write-Host
+          if ($resultados | Where-Object Severity -eq 'Error') {
+            Write-Error 'PSScriptAnalyzer encontrou erros.'
+            exit 1
+          }
+
+      - name: Pester (testes estruturais)
+        shell: powershell
+        run: |
+          Install-Module Pester -MinimumVersion 5.0 -Force -Scope CurrentUser -SkipPublisherCheck
+          Import-Module Pester -MinimumVersion 5.0
+          Invoke-Pester -Path .\tests -Output Detailed -CI
+
+      - name: Dry-run completo (simulacao, perfil Agressivo)
+        shell: powershell
+        run: |
+          .\debloat-windows11.ps1 -NaoInterativo -Simular -Perfil Agressivo
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Dry-run terminou com codigo $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
