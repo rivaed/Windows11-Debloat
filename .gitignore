@@ -1,0 +1,12 @@
+# SO
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Logs de execucao/teste
+*.log
+logs/
+
+# Pester/PSScriptAnalyzer
+testResults.xml
+coverage.xml
