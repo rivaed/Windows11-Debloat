@@ -47,6 +47,21 @@ Describe 'Sintaxe e encoding' {
             }, $true)
         $comandos | Should -BeNullOrEmpty
     }
+
+    It 'toda chamada a ConvertTo-Json especifica -Depth (padrao do PS 5.1 trunca aninhamento sem aviso)' {
+        $chamadas = $script:Ast.FindAll({
+                param($no)
+                $no -is [System.Management.Automation.Language.CommandAst] -and
+                $no.GetCommandName() -eq 'ConvertTo-Json'
+            }, $true)
+        $chamadas.Count | Should -BeGreaterThan 0
+        foreach ($chamada in $chamadas) {
+            $temDepth = $chamada.CommandElements | Where-Object {
+                $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -eq 'Depth'
+            }
+            $temDepth | Should -Not -BeNullOrEmpty -Because "chamada '$($chamada.Extent.Text)' precisa de -Depth explicito"
+        }
+    }
 }
 
 Describe 'Catalogo' {

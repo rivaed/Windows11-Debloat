@@ -73,6 +73,7 @@ código de saída 2.
 | `-Simular` | Dry-run: mostra o que seria feito sem alterar nada. |
 | `-SemPontoRestauracao` | Não cria ponto de restauração. |
 | `-CaminhoLog <arquivo>` | Log em caminho customizado. |
+| `-CaminhoRelatorioJson <arquivo>` | Exporta um relatório antes/depois em JSON (item a item, com status) — útil para anexar a um laudo de atendimento ou alimentar um RMM/dashboard. |
 
 **Perfis:** `Minimo` = só itens Seguros · `Completo` = Seguros + Opcionais ·
 `Agressivo` = tudo, incluindo itens que quebram funcionalidades (tabelas abaixo).
@@ -82,6 +83,25 @@ admin · `3` SO não suportado · `4` cancelado pelo usuário · `5` concluído 
 
 **Log:** `%ProgramData%\Windows11-Debloat\logs\debloat_<data>.log` (transcript completo da
 execução — o caminho é exibido no início e no fim).
+
+### Relatório antes/depois em JSON
+
+Com `-CaminhoRelatorioJson <arquivo>`, o script exporta um relatório estruturado da
+execução (funciona em modo real e em `-Simular`):
+
+```json
+{
+  "SchemaVersion": 1,
+  "Ferramenta": "Windows11-Debloat",
+  "Versao": "2.1.0",
+  "DataHora": "2026-08-30T10:00:00.0000000-04:00",
+  "Simulacao": false,
+  "Contagem": { "Ok": 30, "Parcial": 0, "NaoEncontrado": 5, "Falha": 0, "Simulado": 0 },
+  "Itens": [
+    { "Id": "bing-news", "Categoria": "Apps", "Tipo": "Appx", "Nivel": "Seguro", "Descricao": "...", "Status": "Ok", "Detalhe": "removido" }
+  ]
+}
+```
 
 ---
 

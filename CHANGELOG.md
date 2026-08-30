@@ -2,7 +2,17 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
-## [2.0.0] — não lançado
+## [2.1.0] — não lançado
+
+### Adicionado
+- Relatório antes/depois em JSON (`-CaminhoRelatorioJson`): cada item processado, com
+  status e contagem agregada, `SchemaVersion` e timestamp na raiz. Para viabilizar isso,
+  `Invoke-Selecao` passou a acumular o resultado detalhado de cada item (antes só
+  retornava contagens agregadas e descartava o detalhe).
+- Teste mecânico novo: garante que toda chamada a `ConvertTo-Json` especifica `-Depth`
+  (o padrão do PS 5.1 é 2 e trunca aninhamento sem aviso).
+
+## [2.0.0] — 2026-08-30
 
 ### Adicionado
 - Menu interativo por categorias (Apps, Telemetria, Desempenho, Limpeza) com marcação

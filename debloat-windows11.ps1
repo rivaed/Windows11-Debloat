@@ -29,6 +29,10 @@
 .PARAMETER CaminhoLog
     Caminho do arquivo de log. Padrao: %ProgramData%\Windows11-Debloat\logs\debloat_<data>.log
 
+.PARAMETER CaminhoRelatorioJson
+    Exporta um relatorio estruturado (item a item, com status) em JSON para o caminho
+    informado — util para anexar a um laudo de atendimento ou alimentar um RMM/dashboard.
+
 .EXAMPLE
     .\debloat-windows11.ps1
     Abre o menu interativo com o perfil Completo pre-selecionado.
@@ -36,6 +40,10 @@
 .EXAMPLE
     .\debloat-windows11.ps1 -NaoInterativo -Perfil Minimo -Simular
     Simula (sem alterar nada) o que o perfil Minimo faria, sem menu.
+
+.EXAMPLE
+    .\debloat-windows11.ps1 -NaoInterativo -Perfil Completo -CaminhoRelatorioJson C:\Laudos\debloat.json
+    Executa o perfil Completo e exporta o relatorio item a item em JSON.
 
 .NOTES
     Reversao: veja a secao "Como reverter" no README.
@@ -56,10 +64,13 @@ param(
     [switch]$SemPontoRestauracao,
 
     [ValidateNotNullOrEmpty()]
-    [string]$CaminhoLog
+    [string]$CaminhoLog,
+
+    [ValidateNotNullOrEmpty()]
+    [string]$CaminhoRelatorioJson
 )
 
-$script:VERSAO = '2.0.0'
+$script:VERSAO = '2.1.0'
 $script:Simular = [bool]$Simular -or [bool]$WhatIfPreference
 $script:TranscriptAtivo = $false
 $script:ArquivoLog = $null
@@ -735,6 +746,7 @@ function Invoke-Selecao {
     }
 
     $contagem = @{ Ok = 0; Parcial = 0; NaoEncontrado = 0; Falha = 0; Simulado = 0 }
+    $detalhes = [System.Collections.Generic.List[object]]::new()
     $total = $Itens.Count
     $indice = 0
     foreach ($item in $Itens) {
@@ -742,6 +754,11 @@ function Invoke-Selecao {
         $prefixo = '[{0,2}/{1}]' -f $indice, $total
         $resultado = Invoke-DebloatItem -Item $item
         $contagem[$resultado.Status]++
+        $detalhes.Add([pscustomobject]@{
+            Id = $item.Id; Categoria = $item.Categoria; Tipo = $item.Tipo
+            Nivel = $item.Nivel; Descricao = $item.Descricao
+            Status = $resultado.Status; Detalhe = $resultado.Detalhe
+        })
         $linha = '{0} {1}: {2}' -f $prefixo, $item.Descricao, $resultado.Detalhe
         switch ($resultado.Status) {
             'Ok'            { Write-Log $linha 'Ok' }
@@ -760,7 +777,37 @@ function Invoke-Selecao {
         Write-Log ('Concluido: {0} ok, {1} parcial(is), {2} nao encontrado(s), {3} falha(s).' -f $contagem.Ok, $contagem.Parcial, $contagem.NaoEncontrado, $contagem.Falha) 'Titulo'
         Write-Log 'Reinicie o PC para concluir as mudancas de interface e de servicos.' 'Info'
     }
-    return $contagem
+    return @{ Contagem = $contagem; Detalhes = $detalhes }
+}
+
+function Export-RelatorioJson {
+    param(
+        [Parameter(Mandatory)][string]$Caminho,
+        [Parameter(Mandatory)][object[]]$Detalhes,
+        [Parameter(Mandatory)][hashtable]$Contagem
+    )
+    $relatorio = [pscustomobject]@{
+        SchemaVersion = 1
+        Ferramenta    = 'Windows11-Debloat'
+        Versao        = $script:VERSAO
+        DataHora      = (Get-Date).ToString('o')
+        Simulacao     = [bool]$script:Simular
+        Contagem      = $Contagem
+        Itens         = $Detalhes
+    }
+    try {
+        $pasta = Split-Path -Path $Caminho -Parent
+        if ($pasta -and -not (Test-Path $pasta)) {
+            New-Item -Path $pasta -ItemType Directory -Force -ErrorAction Stop | Out-Null
+        }
+        # -Depth explicito sempre: o padrao do PS 5.1 e 2, e trunca aninhamento sem
+        # aviso (o "Itens" aqui e uma lista de objetos, ja passaria dos 2 niveis).
+        $relatorio | ConvertTo-Json -Depth 5 | Set-Content -Path $Caminho -Encoding UTF8 -ErrorAction Stop
+        Write-Log ('Relatorio JSON salvo em: {0}' -f $Caminho) 'Info'
+    }
+    catch {
+        Write-Log ('Nao foi possivel salvar o relatorio JSON: {0}' -f $_.Exception.Message) 'Aviso'
+    }
 }
 
 #endregion
@@ -973,7 +1020,10 @@ try {
     }
 
     $resultado = Invoke-Selecao -Itens $itensExecucao
-    if ($resultado.Falha -gt 0) { $codigoSaida = 5 }
+    if ($resultado.Contagem.Falha -gt 0) { $codigoSaida = 5 }
+    if ($CaminhoRelatorioJson) {
+        Export-RelatorioJson -Caminho $CaminhoRelatorioJson -Detalhes $resultado.Detalhes -Contagem $resultado.Contagem
+    }
 }
 finally {
     if ($script:TranscriptAtivo) {
